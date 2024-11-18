@@ -1,4 +1,4 @@
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, query, getDocs, where } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
 
 /**
@@ -17,6 +17,27 @@ export const getMeals = async (userId) => {
         return meals;
     } catch (e) {
         console.error("Error al obtener las comidas: ", e);
+        return [];
+    }
+};
+
+export const getDailyMeals = async (userId) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
+        const q = query(
+            collection(db, "users", userId, "meals"),
+            where("createdAt", ">=", today)
+        );
+        const querySnapshot = await getDocs(q);
+        const meals = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        return meals;
+    } catch (e) {
+        console.error("Error al obtener las comidas de hoy: ", e);
         return [];
     }
 };

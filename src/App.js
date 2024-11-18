@@ -11,6 +11,7 @@ import { AddMeal } from "./pages/meals/addMeal";
 import { SetGoals } from "./pages/goals/setGoals";
 import { UpdateProfile } from "./pages/profile/updateProfile";
 import ProfilePage from "./pages/profile/viewProfile";
+import { ViewDashboard } from "./pages/dashboard/viewDashboard";
 
 function App() {
     return (
@@ -65,6 +66,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <ProfilePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <ViewDashboard />
                             </ProtectedRoute>
                         }
                     />
