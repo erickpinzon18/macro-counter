@@ -1,19 +1,34 @@
 import { signOut } from "firebase/auth";
-import React from "react";
+import React, { useState } from "react";
 import { auth } from "../firebaseConfig";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
 
 export const Header = () => {
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const handleLogOut = async () => {
         try {
             await signOut(auth);
-            Navigate("/login");
+            navigate("/login");
         } catch (error) {
             console.error("Error logging out:", error);
         }
     };
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const navLinks = [
+        { href: "/", label: "Home" },
+        { href: "/addMeal", label: "Add meal" },
+        { href: "/setGoals", label: "Set goals" },
+        { href: "/profile", label: "Profile" },
+        { href: "/dashboard", label: "Dashboard" },
+    ];
 
     return (
         <header className="bg-blue-500 text-white shadow-md">
@@ -25,47 +40,38 @@ export const Header = () => {
 
                 {/* Navigation Links */}
                 <nav className="hidden md:flex space-x-6">
-                    <a href="/" className="hover:text-gray-200">
-                        Home
-                    </a>
-                    <a href="/addMeal" className="hover:text-gray-200">
-                        Add meal
-                    </a>
-                    <a href="/setGoals" className="hover:text-gray-200">
-                        Set goals
-                    </a>
-                    <a href="/profile" className="hover:text-gray-200">
-                        Profile
-                    </a>
-                    <a href="/dashboard" className="hover:text-gray-200">
-                        Dashboard
-                    </a>
+                    {navLinks.map((link) => (
+                        <a key={link.href} href={link.href} className="hover:text-gray-200">
+                            {link.label}
+                        </a>
+                    ))}
                 </nav>
 
                 {/* Login Button */}
-                {currentUser ? (
-                    <div className="hidden md:block">
+                <div className="hidden md:block">
+                    {currentUser ? (
                         <button
                             className="bg-white text-blue-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
                             onClick={handleLogOut}
                         >
                             Log out
                         </button>
-                    </div>
-                ) : (
-                    <div className="hidden md:block">
+                    ) : (
                         <button
                             className="bg-white text-blue-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
-                            onClick={() => window.location.replace("/login")}
+                            onClick={() => navigate("/login")}
                         >
                             Log in
                         </button>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {/* Mobile Menu Icon */}
                 <div className="md:hidden">
-                    <button className="text-white focus:outline-none">
+                    <button
+                        className="text-white focus:outline-none"
+                        onClick={toggleMobileMenu}
+                    >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-6 w-6"
@@ -83,6 +89,34 @@ export const Header = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden bg-blue-500 text-white p-4">
+                    <nav className="space-y-4">
+                        {navLinks.map((link) => (
+                            <a key={link.href} href={link.href} className="block hover:text-gray-200">
+                                {link.label}
+                            </a>
+                        ))}
+                        {currentUser ? (
+                            <button
+                                className="w-full bg-white text-blue-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
+                                onClick={handleLogOut}
+                            >
+                                Log out
+                            </button>
+                        ) : (
+                            <button
+                                className="w-full bg-white text-blue-500 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
+                                onClick={() => navigate("/login")}
+                            >
+                                Log in
+                            </button>
+                        )}
+                    </nav>
+                </div>
+            )}
         </header>
     );
 };

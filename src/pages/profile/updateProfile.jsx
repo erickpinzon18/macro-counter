@@ -61,7 +61,7 @@ export const UpdateProfile = () => {
     };
 
     return (
-        <div className="flex justify-center items-start min-h-screen bg-gray-100">
+        <div className="flex flex-col md:flex-row justify-center items-start min-h-screen bg-gray-100 p-4 md:p-6">
             <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-8 my-10">
                 <h2 className="text-2xl font-semibold text-center text-blue-600 mb-6">
                     Profile Information
@@ -182,7 +182,7 @@ export const UpdateProfile = () => {
 
             {/* Panel de metas, sólo si existen */}
             {userGoals && (
-                <div className="w-80 ml-8 bg-gray-50 p-6 rounded-lg shadow-lg my-10">
+                <div className="w-full max-w-lg md:w-80 md:ml-8 bg-gray-50 p-6 rounded-lg shadow-lg my-10">
                     <h3 className="text-xl font-semibold text-center text-green-600 mb-4">
                         Your Current Goals
                     </h3>

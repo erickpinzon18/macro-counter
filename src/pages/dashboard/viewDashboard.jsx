@@ -5,6 +5,7 @@ import { getMeals } from "../meals/functions/getMeals";
 import { LineChart } from "@mui/x-charts";
 import { GetGoals } from "../goals/functions/getGoals";
 import { getProfile } from "../profile/functions/getProfile";
+import { Box } from "@mui/material";
 
 export const ViewDashboard = () => {
     const { userData, currentUser } = useAuth();
@@ -25,9 +26,12 @@ export const ViewDashboard = () => {
         const fetchMeals = async () => {
             if (currentUser) {
                 const userMeals = await getMeals(currentUser.uid);
-                
+
                 const groupedMeals = userMeals.reduce((acc, meal) => {
-                    const date = meal.createdAt.toDate().toISOString().split("T")[0];
+                    const date = meal.createdAt
+                        .toDate()
+                        .toISOString()
+                        .split("T")[0];
                     if (date) {
                         if (!acc[date]) {
                             acc[date] = { protein: 0, carbs: 0, fats: 0 };
@@ -39,7 +43,7 @@ export const ViewDashboard = () => {
                     return acc;
                 }, {});
 
-                const chartData = Object.keys(groupedMeals).map(date => ({
+                const chartData = Object.keys(groupedMeals).map((date) => ({
                     date,
                     protein: groupedMeals[date].protein,
                     carbs: groupedMeals[date].carbs,
@@ -57,15 +61,9 @@ export const ViewDashboard = () => {
                 setTotalFats(
                     userMeals?.reduce((acc, meal) => acc + meal?.fats, 0)
                 );
-                setProteinData(
-                    chartData.map((data) => data.protein)
-                );
-                setCarbData(
-                    chartData.map((data) => data.carbs)
-                );
-                setFatData(
-                    chartData.map((data) => data.fats)
-                );
+                setProteinData(chartData.map((data) => data.protein));
+                setCarbData(chartData.map((data) => data.carbs));
+                setFatData(chartData.map((data) => data.fats));
                 setLoadingMeals(false);
             }
         };
@@ -94,9 +92,12 @@ export const ViewDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-5xl mx-auto">
+                <h2 className="text-3xl font-semibold text-center text-blue-600 mb-6">
+                    Profile Overview
+                </h2>
                 {/* Header */}
                 <header className="mb-6">
-                    <h1 className="text-2xl font-semibold text-blue-600">
+                    <h1 className="text-2xl font-semibold text-blue-600 break-words">
                         Welcome, {userData?.email || userProfile.name}!
                     </h1>
                     <p className="text-gray-500">
@@ -106,9 +107,9 @@ export const ViewDashboard = () => {
                     </p>
                 </header>
 
-                <div className="flex">
+                <div className="flex flex-col md:flex-row">
                     {/* User Profile */}
-                    <section className="bg-white p-6 rounded-lg shadow-md mb-6 flex-auto mr-3">
+                    <section className="bg-white p-6 rounded-lg shadow-md mb-6 flex-auto md:mr-3">
                         <h2 className="text-xl font-semibold text-gray-700 mb-4">
                             User Profile
                         </h2>
@@ -141,14 +142,13 @@ export const ViewDashboard = () => {
                     </section>
 
                     {/* Line Chart */}
-                    <section className="bg-white p-6 rounded-lg shadow-md mb-6 flex ml-3">
-                        <div>
+                    <section className="bg-white p-6 rounded-lg shadow-md mb-6 flex-auto md:ml-3">
+                        <Box flexGrow={1}>
                             <h2 className="text-xl font-semibold text-gray-700 mb-4">
                                 Nutrient Intake Chart
                             </h2>
                             <LineChart
-                                width={500}
-                                height={300}
+                                height={250}
                                 series={[
                                     { data: proteinData, label: "Protein" },
                                     { data: carbData, label: "Carbs" },
@@ -157,7 +157,7 @@ export const ViewDashboard = () => {
                                 xAxis={[{ scaleType: "point", data: xLabels }]}
                                 className="mx-auto"
                             />
-                        </div>
+                        </Box>
                     </section>
                 </div>
 
@@ -166,7 +166,7 @@ export const ViewDashboard = () => {
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">
                         Goals
                     </h2>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="text-center">
                             <h3 className="text-lg font-medium text-gray-800">
                                 Protein
@@ -226,7 +226,7 @@ export const ViewDashboard = () => {
                     {loadingMeals ? (
                         <div>Loading meals...</div>
                     ) : (
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="text-center">
                                 <h3 className="text-lg font-medium text-gray-800">
                                     Proteins

@@ -106,7 +106,7 @@ function Home() {
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
                 <header className="mb-6">
-                    <h1 className="text-2xl font-semibold text-blue-600">
+                    <h1 className="text-2xl font-semibold text-blue-600 break-words">
                         Welcome, {userData?.email}!
                     </h1>
                     <p className="text-gray-500">
@@ -116,7 +116,7 @@ function Home() {
                 </header>
 
                 {/* Dashboard Resumido */}
-                <section className="bg-white p-6 rounded-lg shadow-md mb-6 mr-3 flex-auto">
+                <section className="bg-white p-6 rounded-lg shadow-md mb-6">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">
                         Daily Summary
                     </h2>
@@ -124,7 +124,7 @@ function Home() {
                         <div>Loading meals...</div>
                     ) : (
                         <Stack
-                            direction="row"
+                            direction={{ xs: "column", md: "row" }}
                             width="100%"
                             textAlign="center"
                             spacing={2}

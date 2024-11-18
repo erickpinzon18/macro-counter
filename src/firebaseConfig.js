@@ -1,18 +1,20 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC5w3MykurxsXrpXxSqHa5Pc61CV5Lg9Hs",
-    authDomain: "macro-counter-db29d.firebaseapp.com",
-    projectId: "macro-counter-db29d",
-    storageBucket: "macro-counter-db29d.appspot.com",
-    messagingSenderId: "791826944662",
-    appId: "1:791826944662:web:964de4581a789c4d23e8b7",
+    apiKey: process.env.REACT_APP_FB_API_KEY,
+    authDomain: process.env.REACT_APP_FB_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FB_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FB_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FB_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FB_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
-export { auth, db };
+export { db, auth, storage };
