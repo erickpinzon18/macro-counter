@@ -1,7 +1,7 @@
 {
   "name": "macro-counter",
   "version": "0.1.0",
-  "homepage": "https://erickpinzon18.github.io/react-gh-pages",
+  "homepage": "https://erickpinzon18.github.io/macro-counter",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
