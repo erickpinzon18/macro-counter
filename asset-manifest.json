@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/macro-counter/static/css/main.482231f5.css",
-    "main.js": "/macro-counter/static/js/main.3a1a7c1d.js",
+    "main.js": "/macro-counter/static/js/main.b5793025.js",
     "static/js/453.992c5f09.chunk.js": "/macro-counter/static/js/453.992c5f09.chunk.js",
     "service-worker.js": "/macro-counter/service-worker.js",
     "index.html": "/macro-counter/index.html",
     "main.482231f5.css.map": "/macro-counter/static/css/main.482231f5.css.map",
-    "main.3a1a7c1d.js.map": "/macro-counter/static/js/main.3a1a7c1d.js.map",
+    "main.b5793025.js.map": "/macro-counter/static/js/main.b5793025.js.map",
     "453.992c5f09.chunk.js.map": "/macro-counter/static/js/453.992c5f09.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.482231f5.css",
-    "static/js/main.3a1a7c1d.js"
+    "static/js/main.b5793025.js"
   ]
 }
