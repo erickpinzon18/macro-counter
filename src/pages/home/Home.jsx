@@ -9,8 +9,8 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
 function Home() {
-    const { userData, currentUser } = useAuth();
     const navigate = useNavigate();
+    const { userData, currentUser } = useAuth();
     const [loadingMeals, setLoadingMeals] = useState(true);
     const [proteinGoals, setProteinGoals] = useState(0);
     const [carbGoals, setCarbGoals] = useState(0);
@@ -26,7 +26,6 @@ function Home() {
         const fetchMeals = async () => {
             if (currentUser) {
                 const userMeals = await getDailyMeals(currentUser.uid);
-                setLoadingMeals(false);
                 setTotalProtein(
                     userMeals?.reduce((acc, meal) => acc + meal?.protein, 0)
                 );
@@ -57,6 +56,7 @@ function Home() {
                         value: meal?.fats,
                     }))
                 );
+                setLoadingMeals(false);
             }
         };
 

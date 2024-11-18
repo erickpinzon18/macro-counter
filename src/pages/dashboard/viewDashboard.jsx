@@ -3,59 +3,93 @@ import { useAuth } from "../../auth/authContext";
 import { useNavigate } from "react-router-dom";
 import { getMeals } from "../meals/functions/getMeals";
 import { LineChart } from "@mui/x-charts";
+import { GetGoals } from "../goals/functions/getGoals";
+import { getProfile } from "../profile/functions/getProfile";
 
 export const ViewDashboard = () => {
     const { userData, currentUser } = useAuth();
     const navigate = useNavigate();
-    const [meals, setMeals] = useState([]);
     const [loadingMeals, setLoadingMeals] = useState(true);
 
-    const userProfile = {
-        activityLevel: "moderado",
-        age: 21,
-        bodyFat: 15,
-        height: 172,
-        muscleMass: 25,
-        name: "Erick Pinzon",
-        weight: 67,
-    };
-
-    const userGoals = {
-        carbGoal: 400,
-        dailyCalories: 3000,
-        fatGoal: 100,
-        goalType: "bulking",
-        proteinGoal: 140,
-        targetWeight: 70,
-    };
+    const [totalProtein, setTotalProtein] = useState(0);
+    const [totalCarbs, setTotalCarbs] = useState(0);
+    const [totalFats, setTotalFats] = useState(0);
+    const [proteinData, setProteinData] = useState([]);
+    const [carbData, setCarbData] = useState([]);
+    const [fatData, setFatData] = useState([]);
+    const [lastData, setLastData] = useState([]);
+    const [userProfile, setUserProfile] = useState({});
+    const [userGoals, setUserGoals] = useState({});
 
     useEffect(() => {
         const fetchMeals = async () => {
             if (currentUser) {
                 const userMeals = await getMeals(currentUser.uid);
-                setMeals(userMeals);
+                
+                const groupedMeals = userMeals.reduce((acc, meal) => {
+                    const date = meal.createdAt.toDate().toISOString().split("T")[0];
+                    if (date) {
+                        if (!acc[date]) {
+                            acc[date] = { protein: 0, carbs: 0, fats: 0 };
+                        }
+                        acc[date].protein += meal.protein;
+                        acc[date].carbs += meal.carbs;
+                        acc[date].fats += meal.fats;
+                    }
+                    return acc;
+                }, {});
+
+                const chartData = Object.keys(groupedMeals).map(date => ({
+                    date,
+                    protein: groupedMeals[date].protein,
+                    carbs: groupedMeals[date].carbs,
+                    fats: groupedMeals[date].fats,
+                }));
+
+                setLastData(chartData);
+
+                setTotalProtein(
+                    userMeals?.reduce((acc, meal) => acc + meal?.protein, 0)
+                );
+                setTotalCarbs(
+                    userMeals?.reduce((acc, meal) => acc + meal?.carbs, 0)
+                );
+                setTotalFats(
+                    userMeals?.reduce((acc, meal) => acc + meal?.fats, 0)
+                );
+                setProteinData(
+                    chartData.map((data) => data.protein)
+                );
+                setCarbData(
+                    chartData.map((data) => data.carbs)
+                );
+                setFatData(
+                    chartData.map((data) => data.fats)
+                );
                 setLoadingMeals(false);
             }
         };
 
+        const fetchGoals = async () => {
+            if (currentUser) {
+                const userGoals = await GetGoals(currentUser.uid);
+                setUserGoals(userGoals[0]);
+            }
+        };
+
+        const fetchProfile = async () => {
+            if (currentUser) {
+                const user = await getProfile(currentUser.uid);
+                setUserProfile(user);
+            }
+        };
+
         fetchMeals();
+        fetchGoals();
+        fetchProfile();
     }, [currentUser]);
 
-    const totalProtein = meals.reduce((acc, meal) => acc + meal.protein, 0);
-    const totalCarbs = meals.reduce((acc, meal) => acc + meal.carbs, 0);
-    const totalFats = meals.reduce((acc, meal) => acc + meal.fats, 0);
-
-    const chartData = meals.map((meal, index) => ({
-        name: `Meal ${index + 1}`,
-        protein: meal.protein,
-        carbs: meal.carbs,
-        fats: meal.fats,
-    }));
-
-    const proteinData = chartData.map((data) => data.protein);
-    const carbsData = chartData.map((data) => data.carbs);
-    const fatsData = chartData.map((data) => data.fats);
-    const xLabels = chartData.map((data) => data.name);
+    const xLabels = lastData.map((data) => data.date);
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -117,8 +151,8 @@ export const ViewDashboard = () => {
                                 height={300}
                                 series={[
                                     { data: proteinData, label: "Protein" },
-                                    { data: carbsData, label: "Carbs" },
-                                    { data: fatsData, label: "Fats" },
+                                    { data: carbData, label: "Carbs" },
+                                    { data: fatData, label: "Fats" },
                                 ]}
                                 xAxis={[{ scaleType: "point", data: xLabels }]}
                                 className="mx-auto"
