@@ -1,7 +1,7 @@
 import { signOut } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebaseConfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/authContext";
 
 export const Header = () => {
@@ -23,11 +23,11 @@ export const Header = () => {
     };
 
     const navLinks = [
-        { href: "/", label: "Home" },
-        { href: "/addMeal", label: "Add meal" },
-        { href: "/setGoals", label: "Set goals" },
-        { href: "/profile", label: "Profile" },
-        { href: "/dashboard", label: "Dashboard" },
+        { to: "/", label: "Home" },
+        { to: "/addMeal", label: "Add meal" },
+        { to: "/setGoals", label: "Set goals" },
+        { to: "/profile", label: "Profile" },
+        { to: "/dashboard", label: "Dashboard" },
     ];
 
     return (
@@ -35,15 +35,15 @@ export const Header = () => {
             <div className="container mx-auto flex items-center justify-between p-4">
                 {/* Logo */}
                 <div className="text-2xl font-bold">
-                    <a href="/">Macro Counter</a>
+                    <Link to="/">Macro Counter</Link>
                 </div>
 
                 {/* Navigation Links */}
                 <nav className="hidden md:flex space-x-6">
                     {navLinks.map((link) => (
-                        <a key={link.href} href={link.href} className="hover:text-gray-200">
+                        <Link key={link.to} to={link.to} className="hover:text-gray-200">
                             {link.label}
-                        </a>
+                        </Link>
                     ))}
                 </nav>
 
@@ -95,9 +95,9 @@ export const Header = () => {
                 <div className="md:hidden bg-blue-500 text-white p-4">
                     <nav className="space-y-4">
                         {navLinks.map((link) => (
-                            <a key={link.href} href={link.href} className="block hover:text-gray-200">
+                            <Link key={link.to} to={link.to} className="block hover:text-gray-200">
                                 {link.label}
-                            </a>
+                            </Link>
                         ))}
                         {currentUser ? (
                             <button
