@@ -71,6 +71,15 @@ function App() {
             onMessage(messaging, (payload) => {
                 console.log("Message received. ", payload);
                 // Maneja la notificación en primer plano
+                const notificationTitle = payload.notification.title;
+                const notificationOptions = {
+                    body: payload.notification.body,
+                    icon: '/firebase-logo.png'
+                };
+
+                if (Notification.permission === 'granted') {
+                    new Notification(notificationTitle, notificationOptions);
+                }
             });
         }
     }, [permissionRequested, currentUser]);
