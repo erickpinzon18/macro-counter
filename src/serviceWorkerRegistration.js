@@ -7,22 +7,19 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator) {
         const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
         if (publicUrl.origin !== window.location.origin) {
             return;
         }
 
         window.addEventListener("load", () => {
-            const swUrl = window.location.href + "firebase-messaging-sw.js";
+            const swUrl = `${process.env.PUBLIC_URL}/firebase-messaging-sw.js`;
 
             if (isLocalhost) {
                 checkValidServiceWorker(swUrl, config);
                 navigator.serviceWorker.ready.then(() => {
-                    console.log(
-                        "This web app is being served cache-first by a service " +
-                            "worker. To learn more, visit https://cra.link/PWA"
-                    );
+                    console.log("Service Worker is ready.");
                 });
             } else {
                 registerValidSW(swUrl, config);
@@ -35,6 +32,10 @@ function registerValidSW(swUrl, config) {
     navigator.serviceWorker
         .register(swUrl)
         .then((registration) => {
+            console.log(
+                "Service Worker registered with scope:",
+                registration.scope
+            );
             registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
                 if (installingWorker == null) {
@@ -44,16 +45,13 @@ function registerValidSW(swUrl, config) {
                     if (installingWorker.state === "installed") {
                         if (navigator.serviceWorker.controller) {
                             console.log(
-                                "New content is available and will be used when all " +
-                                    "tabs for this page are closed. See https://cra.link/PWA."
+                                "New content is available and will be used when all tabs for this page are closed."
                             );
-
                             if (config && config.onUpdate) {
                                 config.onUpdate(registration);
                             }
                         } else {
                             console.log("Content is cached for offline use.");
-
                             if (config && config.onSuccess) {
                                 config.onSuccess(registration);
                             }

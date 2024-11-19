@@ -19,7 +19,9 @@ import { useAuth } from "./auth/authContext";
 
 const requestPermission = async (currentUser) => {
     try {
+        console.log("Requesting permission...");
         const registration = await navigator.serviceWorker.ready;
+        console.log("Service Worker ready.");
         const token = await getToken(messaging, {
             vapidKey: process.env.REACT_APP_FB_VAPID_KEY,
             serviceWorkerRegistration: registration,
