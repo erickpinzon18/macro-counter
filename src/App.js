@@ -13,15 +13,24 @@ import { UpdateProfile } from "./pages/profile/updateProfile";
 import ProfilePage from "./pages/profile/viewProfile";
 import { ViewDashboard } from "./pages/dashboard/viewDashboard";
 import { getToken, onMessage } from "firebase/messaging";
-import { messaging } from "./firebaseConfig"; // Importa tu configuración de Firebase
+import { messaging } from "./firebaseConfig"; 
+import { saveFCMToken } from "./functions/saveFCMToken";
+import { useAuth } from "./auth/authContext"; 
 
-const requestPermission = async () => {
+const requestPermission = async (currentUser) => {
     try {
+        console.log("Requesting service worker registration...");
         const registration = await navigator.serviceWorker.ready;
-        const token = await getToken(messaging, { vapidKey: process.env.REACT_APP_FB_VAPID_KEY, serviceWorkerRegistration: registration });
+        console.log("Service worker registered:", registration);
+
+        console.log("Requesting FCM token...");
+        const token = await getToken(messaging, {
+            vapidKey: process.env.REACT_APP_FB_VAPID_KEY,
+            serviceWorkerRegistration: registration,
+        });
         if (token) {
-            console.log("FCM Token:", token);
-            // Guarda el token en tu base de datos o envíalo a tu servidor
+            console.log("FCM Token obtained:", token);
+            await saveFCMToken(token, currentUser.uid); 
         } else {
             console.log("No registration token available. Request permission to generate one.");
         }
@@ -35,30 +44,37 @@ const requestPermission = async () => {
 };
 
 function App() {
+    const { currentUser } = useAuth(); 
     const [permissionRequested, setPermissionRequested] = useState(false);
 
     useEffect(() => {
-        if (!permissionRequested) {
-            Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
-                    setPermissionRequested(true);
-                } else if (permission === "denied") {
-                    alert("Notifications are blocked. Please enable them in your browser settings.");
-                }
-            });
-        }
-    }, [permissionRequested]);
+        console.log("Current user: ", currentUser);
+        console.log("Permission requested: ", permissionRequested);
 
-    useEffect(() => {
-        if (permissionRequested) {
-            requestPermission();
+        (async () => {
+            if (!permissionRequested && currentUser) {
+                console.log("Requesting notification permission...");
+                Notification.requestPermission().then((permission) => {
+                    if (permission === "granted") {
+                        console.log("Notification permission granted.");
+                        setPermissionRequested(true);
+                    } else if (permission === "denied") {
+                        alert("Notifications are blocked. Please enable them in your browser settings.");
+                    }
+                });
+            }
 
-            onMessage(messaging, (payload) => {
-                console.log("Message received. ", payload);
-                // Maneja la notificación en primer plano
-            });
-        }
-    }, [permissionRequested]);
+            if (permissionRequested && currentUser) {
+                console.log("Requesting FCM token...");
+                await requestPermission(currentUser);
+
+                onMessage(messaging, (payload) => {
+                    console.log("Message received. ", payload);
+                    // Maneja la notificación en primer plano
+                });
+            }
+        })();
+    }, [permissionRequested, currentUser]);
 
     return (
         <div className="App">
