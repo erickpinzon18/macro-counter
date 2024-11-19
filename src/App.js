@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home/Home";
 import About from "./pages/about/About";
@@ -12,8 +12,54 @@ import { SetGoals } from "./pages/goals/setGoals";
 import { UpdateProfile } from "./pages/profile/updateProfile";
 import ProfilePage from "./pages/profile/viewProfile";
 import { ViewDashboard } from "./pages/dashboard/viewDashboard";
+import { getToken, onMessage } from "firebase/messaging";
+import { messaging } from "./firebaseConfig"; // Importa tu configuración de Firebase
+
+const requestPermission = async () => {
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const token = await getToken(messaging, { vapidKey: process.env.REACT_APP_FB_VAPID_KEY, serviceWorkerRegistration: registration });
+        if (token) {
+            console.log("FCM Token:", token);
+            // Guarda el token en tu base de datos o envíalo a tu servidor
+        } else {
+            console.log("No registration token available. Request permission to generate one.");
+        }
+    } catch (error) {
+        if (error.code === "messaging/permission-blocked") {
+            alert("Notifications are blocked. Please enable them in your browser settings.");
+        } else {
+            console.error("An error occurred while retrieving token. ", error);
+        }
+    }
+};
 
 function App() {
+    const [permissionRequested, setPermissionRequested] = useState(false);
+
+    useEffect(() => {
+        if (!permissionRequested) {
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    setPermissionRequested(true);
+                } else if (permission === "denied") {
+                    alert("Notifications are blocked. Please enable them in your browser settings.");
+                }
+            });
+        }
+    }, [permissionRequested]);
+
+    useEffect(() => {
+        if (permissionRequested) {
+            requestPermission();
+
+            onMessage(messaging, (payload) => {
+                console.log("Message received. ", payload);
+                // Maneja la notificación en primer plano
+            });
+        }
+    }, [permissionRequested]);
+
     return (
         <div className="App">
             <Header />
