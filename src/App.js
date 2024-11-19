@@ -13,30 +13,30 @@ import { UpdateProfile } from "./pages/profile/updateProfile";
 import ProfilePage from "./pages/profile/viewProfile";
 import { ViewDashboard } from "./pages/dashboard/viewDashboard";
 import { getToken, onMessage } from "firebase/messaging";
-import { messaging } from "./firebaseConfig"; 
+import { messaging } from "./firebaseConfig";
 import { saveFCMToken } from "./functions/saveFCMToken";
-import { useAuth } from "./auth/authContext"; 
+import { useAuth } from "./auth/authContext";
 
 const requestPermission = async (currentUser) => {
     try {
-        console.log("Requesting service worker registration...");
         const registration = await navigator.serviceWorker.ready;
-        console.log("Service worker registered:", registration);
-
-        console.log("Requesting FCM token...");
         const token = await getToken(messaging, {
             vapidKey: process.env.REACT_APP_FB_VAPID_KEY,
             serviceWorkerRegistration: registration,
         });
         if (token) {
             console.log("FCM Token obtained:", token);
-            await saveFCMToken(token, currentUser.uid); 
+            await saveFCMToken(token, currentUser.uid);
         } else {
-            console.log("No registration token available. Request permission to generate one.");
+            console.log(
+                "No registration token available. Request permission to generate one."
+            );
         }
     } catch (error) {
         if (error.code === "messaging/permission-blocked") {
-            alert("Notifications are blocked. Please enable them in your browser settings.");
+            alert(
+                "Notifications are blocked. Please enable them in your browser settings."
+            );
         } else {
             console.error("An error occurred while retrieving token. ", error);
         }
@@ -44,36 +44,33 @@ const requestPermission = async (currentUser) => {
 };
 
 function App() {
-    const { currentUser } = useAuth(); 
+    const { currentUser } = useAuth();
     const [permissionRequested, setPermissionRequested] = useState(false);
 
     useEffect(() => {
-        console.log("Current user: ", currentUser);
-        console.log("Permission requested: ", permissionRequested);
+        if (!permissionRequested && currentUser) {
+            console.log("Requesting notification permission...");
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    console.log("Notification permission granted.");
+                    setPermissionRequested(true);
+                } else if (permission === "denied") {
+                    alert(
+                        "Notifications are blocked. Please enable them in your browser settings."
+                    );
+                }
+            });
+        }
 
-        (async () => {
-            if (!permissionRequested && currentUser) {
-                console.log("Requesting notification permission...");
-                Notification.requestPermission().then((permission) => {
-                    if (permission === "granted") {
-                        console.log("Notification permission granted.");
-                        setPermissionRequested(true);
-                    } else if (permission === "denied") {
-                        alert("Notifications are blocked. Please enable them in your browser settings.");
-                    }
-                });
-            }
+        if (permissionRequested && currentUser) {
+            console.log("Requesting FCM token...");
+            requestPermission(currentUser);
 
-            if (permissionRequested && currentUser) {
-                console.log("Requesting FCM token...");
-                await requestPermission(currentUser);
-
-                onMessage(messaging, (payload) => {
-                    console.log("Message received. ", payload);
-                    // Maneja la notificación en primer plano
-                });
-            }
-        })();
+            onMessage(messaging, (payload) => {
+                console.log("Message received. ", payload);
+                // Maneja la notificación en primer plano
+            });
+        }
     }, [permissionRequested, currentUser]);
 
     return (

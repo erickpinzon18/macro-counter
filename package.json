@@ -2,6 +2,7 @@
   "name": "macro-counter",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://erickpinzon18.github.io/",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/style": "^0.8.0",
